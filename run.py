@@ -15,15 +15,12 @@ db_config = {
 def get_db_connection():
     return mysql.connector.connect(**db_config)
 
-# --- 1. ROTA DE ENTRADA (PORTAL) ---
-
+# --- 1. ROTA DE ENTRADA ---
 @app.route('/')
 def index():
-    # Esta é a PRIMEIRA página que o usuário verá
     return render_template('auth/portal.html')
 
-# --- 2. ÁREA DO CLIENTE (CATÁLOGO E RESERVAS) ---
-
+# --- 2. ÁREA DO CLIENTE ---
 @app.route('/catalogo')
 def catalogo():
     conn = get_db_connection()
@@ -37,12 +34,11 @@ def catalogo():
 @app.route('/alugar/<int:id_veiculo>')
 def alugar_veiculo(id_veiculo):
     if 'usuario_id' not in session:
-        flash("Faça login como cliente para reservar!")
+        flash("Faça login como cliente para reservar!", "danger")
         return redirect(url_for('login_portal'))
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    
     cursor.execute("SELECT valor_diaria FROM veiculos WHERE id = %s", (id_veiculo,))
     veiculo = cursor.fetchone()
 
@@ -51,14 +47,13 @@ def alugar_veiculo(id_veiculo):
                        (session['usuario_id'], id_veiculo, veiculo['valor_diaria']))
         cursor.execute("UPDATE veiculos SET status = 'alugado' WHERE id = %s", (id_veiculo,))
         conn.commit()
-        flash("Reserva confirmada!")
+        flash("Reserva confirmada com sucesso!", "success")
     
     cursor.close()
     conn.close()
     return redirect(url_for('catalogo'))
 
 # --- 3. AUTENTICAÇÃO E CADASTRO ---
-
 @app.route('/login-portal')
 def login_portal():
     return render_template('auth/portal.html')
@@ -68,21 +63,16 @@ def login_cliente():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
-        
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM usuarios WHERE email = %s AND senha = %s AND perfil = 'cliente'", (email, senha))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
-        
         if user:
-            session['usuario_id'] = user['id']
-            session['nome'] = user['nome']
-            session['perfil'] = 'cliente'
+            session.update({'usuario_id': user['id'], 'nome': user['nome'], 'perfil': 'cliente'})
             return redirect(url_for('catalogo'))
-        
-        flash("Login de cliente inválido!")
+        flash("Login de cliente inválido!", "danger")
     return render_template('auth/login_cliente.html')
 
 @app.route('/login/equipe', methods=['GET', 'POST'])
@@ -90,38 +80,48 @@ def login_equipe():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
-        
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM usuarios WHERE email = %s AND senha = %s AND perfil IN ('admin', 'funcionario')", (email, senha))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
-        
         if user:
-            session['usuario_id'] = user['id']
-            session['nome'] = user['nome']
-            session['perfil'] = user['perfil']
+            session.update({'usuario_id': user['id'], 'nome': user['nome'], 'perfil': user['perfil']})
             return redirect(url_for('dashboard_admin'))
-        
-        flash("Acesso negado para equipe!")
+        flash("Acesso negado para equipe!", "danger")
     return render_template('auth/login_equipe.html')
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
     if request.method == 'POST':
-        nome = request.form['nome']
-        email = request.form['email']
-        senha = request.form['senha']
+        f = request.form
+        # Organizando dados para o banco
+        dados = (
+            f.get('nome'), f.get('email'), f.get('senha'), f.get('cpf'), 
+            f.get('data_nascimento'), f.get('cep'), f.get('rua'), 
+            f.get('uf'), f.get('cidade'), f.get('numero'), 
+            f.get('complemento', ''), f.get('pagamento_pref', 'pendente'),
+            f.get('cartao_numero') if f.get('cartao_numero') else None
+        )
         
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO usuarios (nome, email, senha, perfil) VALUES (%s, %s, %s, 'cliente')", (nome, email, senha))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash("Cadastro realizado! Faça login agora.")
-        return redirect(url_for('login_cliente'))
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            query = """INSERT INTO usuarios 
+                       (nome, email, senha, cpf, data_nascimento, cep, rua, uf, cidade, numero, complemento, pagamento_pref, cartao_numero, perfil) 
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'cliente')"""
+            cursor.execute(query, dados)
+            conn.commit()
+            flash("Cadastrado com sucesso! Agora você pode entrar.", "success")
+            return redirect(url_for('login_cliente'))
+        except mysql.connector.Error as err:
+            flash(f"Erro ao cadastrar: {err}", "danger")
+        finally:
+            if 'conn' in locals() and conn.is_connected():
+                cursor.close()
+                conn.close()
+            
     return render_template('auth/cadastro.html')
 
 @app.route('/logout')
@@ -129,54 +129,13 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
-# --- 4. ÁREA ADMINISTRATIVA (EQUIPE) ---
-
+# --- 4. ÁREA ADMINISTRATIVA ---
 @app.route('/admin/dashboard')
 def dashboard_admin():
     if session.get('perfil') not in ['admin', 'funcionario']:
-        flash("Acesso Negado! Identifique-se na área da equipe.")
+        flash("Acesso Negado!", "danger")
         return redirect(url_for('login_equipe'))
     return render_template('admin/painel.html')
-
-@app.route('/admin/equipe/novo', methods=['GET', 'POST'])
-def cadastrar_equipe():
-    if session.get('perfil') != 'admin':
-        flash("Acesso restrito apenas ao Administrador.")
-        return redirect(url_for('dashboard_admin'))
-
-    if request.method == 'POST':
-        nome = request.form['nome']
-        email = request.form['email']
-        senha = request.form['senha']
-        perfil = request.form['perfil'] 
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO usuarios (nome, email, senha, perfil) VALUES (%s, %s, %s, %s)", 
-                       (nome, email, senha, perfil))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash("Novo colaborador cadastrado com sucesso!")
-        return redirect(url_for('dashboard_admin'))
-    
-    return render_template('admin/cadastro_funcionario.html')
-
-@app.route('/admin/devolver/<int:id_veiculo>')
-def devolver_veiculo(id_veiculo):
-    if session.get('perfil') not in ['admin', 'funcionario']:
-        return "Acesso Negado!", 403
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE veiculos SET status = 'disponivel' WHERE id = %s", (id_veiculo,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    flash("Veículo liberado com sucesso!")
-    return redirect(url_for('dashboard_admin'))
-
-# --- INICIALIZAÇÃO DO SERVIDOR ---
 
 if __name__ == '__main__':
     app.run(debug=True)
