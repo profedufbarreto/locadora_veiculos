@@ -1,0 +1,11 @@
+<th>Ações</th>
+
+<td>
+    {% if v.status == 'alugado' %}
+        <a href="{{ url_for('devolver_veiculo', id_veiculo=v.id) }}" class="btn-devolver">
+            Dar Baixa/Devolver
+        </a>
+    {% else %}
+        - 
+    {% endif %}
+</td>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - Locadora 2026</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page">
+    <div class="login-container">
+        <h2>Criar Conta de Cliente</h2>
+        <form action="{{ url_for('cadastro') }}" method="POST">
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text" name="nome" required placeholder="Seu nome">
+            </div>
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" name="email" required placeholder="email@exemplo.com">
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" name="senha" required placeholder="Crie uma senha">
+            </div>
+            <button type="submit" class="btn-alugar">Finalizar Cadastro</button>
+        </form>
+        <div class="auth-footer">
+            <a href="{{ url_for('login_cliente') }}">Já tenho conta (Entrar)</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar Equipe - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">⚙️ Gestão de Equipe</div>
+        <nav><a href="{{ url_for('dashboard_admin') }}">Voltar ao Painel</a></nav>
+    </header>
+
+    <main class="auth-page">
+        <div class="login-container admin-border">
+            <h2>Novo Colaborador</h2>
+            <p>Adicione administradores ou funcionários ao sistema.</p>
+            
+            <form action="{{ url_for('cadastrar_equipe') }}" method="POST">
+                <div class="form-group">
+                    <label>Nome do Colaborador</label>
+                    <input type="text" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label>E-mail Profissional</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha Inicial</label>
+                    <input type="password" name="senha" required>
+                </div>
+                <div class="form-group">
+                    <label>Nível de Acesso</label>
+                    <select name="perfil" style="width: 100%; padding: 10px; border-radius: 4px;">
+                        <option value="funcionario">Funcionário (Operacional)</option>
+                        <option value="admin">Administrador (Total)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-admin">Salvar Novo Membro</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

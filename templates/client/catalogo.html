@@ -11,9 +11,28 @@
         <div class="logo">🚗 Locadora 2026</div>
         <nav>
             <a href="/">Home</a>
-            <a href="/login" class="btn-login">Entrar</a>
+            
+            {% if session.get('nome') %}
+                <span class="user-name">Olá, {{ session['nome'] }}</span>
+                
+                {% if session.get('perfil') in ['admin', 'funcionario'] %}
+                    <a href="/admin/veiculos" style="color: #f1c40f;">Painel Gerencial</a>
+                {% endif %}
+                
+                <a href="/logout" class="btn-logout">Sair</a>
+            {% else %}
+                <a href="/login" class="btn-login">Entrar</a>
+            {% endif %}
         </nav>
     </header>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
     <section class="hero">
         <h1>Alugue o veículo ideal para sua jornada</h1>
@@ -32,7 +51,14 @@
                     <span class="valor">{{ v.valor_diaria }}</span>
                     <span class="dia">/dia</span>
                 </div>
-                <button class="btn-alugar">Reservar Agora</button>
+
+                {% if v.status == 'disponivel' %}
+                    <a href="{{ url_for('alugar_veiculo', id_veiculo=v.id) }}" class="btn-alugar-link">
+                        Reservar Agora
+                    </a>
+                {% else %}
+                    <button class="btn-indisponivel" disabled>Indisponível</button>
+                {% endif %}
             </div>
             {% endfor %}
         </div>

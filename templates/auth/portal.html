@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo - Locadora 2026</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .portal-wrapper {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+            color: white;
+            text-align: center;
+        }
+        .cards-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .portal-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 300px;
+            transition: transform 0.3s, background 0.3s;
+            text-decoration: none;
+            color: white;
+        }
+        .portal-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .portal-card h3 { font-size: 1.8rem; margin-bottom: 15px; }
+        .icon-large { font-size: 4rem; margin-bottom: 20px; display: block; }
+    </style>
+</head>
+<body>
+    <div class="portal-wrapper">
+        <h1>SISTEMA DE LOCAÇÃO 2026</h1>
+        <p>Selecione seu perfil para continuar</p>
+
+        <div class="cards-container">
+            <a href="{{ url_for('login_cliente') }}" class="portal-card">
+                <span class="icon-large">🚗</span>
+                <h3>Cliente</h3>
+                <p>Quero alugar um veículo para minha próxima viagem.</p>
+            </a>
+
+            <a href="{{ url_for('login_equipe') }}" class="portal-card">
+                <span class="icon-large">🛠️</span>
+                <h3>Equipe</h3>
+                <p>Gestão de frota, usuários e operações internas.</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

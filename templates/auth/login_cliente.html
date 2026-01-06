@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Cliente - Locadora 2026</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page">
+    <div class="login-container">
+        <div class="auth-header">
+            <h2>Área do Cliente</h2>
+            <p>Acesse para reservar seu veículo</p>
+        </div>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-warning">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('login_cliente') }}" method="POST">
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" name="email" required placeholder="exemplo@email.com">
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" name="senha" required placeholder="********">
+            </div>
+            <button type="submit" class="btn-alugar">Entrar Agora</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Ainda não tem conta? <a href="/cadastro">Cadastre-se aqui</a></p>
+            <a href="/login-portal">← Voltar ao início</a>
+        </div>
+    </div>
+</body>
+</html>

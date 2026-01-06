@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Administrativo - Locadora 2026</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">🚀 Painel de Controle</div>
+        <nav>
+            <span>Olá, {{ session['nome'] }} ({{ session['perfil'] }})</span>
+            <a href="{{ url_for('logout') }}">Sair</a>
+        </nav>
+    </header>
+
+    <main class="admin-container">
+        <aside class="sidebar">
+            <ul>
+                <li><a href="{{ url_for('dashboard_admin') }}">Início</a></li>
+                <li><a href="/admin/veiculos">Gerenciar Frota</a></li>
+                {% if session['perfil'] == 'admin' %}
+                <li><a href="{{ url_for('cadastrar_equipe') }}">Cadastrar Equipe</a></li>
+                {% endif %}
+            </ul>
+        </aside>
+
+        <section class="content">
+            <h2>Bem-vindo ao Gerenciamento</h2>
+            <div class="cards-resumo">
+                <div class="card-info">
+                    <h3>Status do Sistema</h3>
+                    <p>Conectado ao Banco de Dados ✅</p>
+                </div>
+            </div>
+            
+            <h3>Ações Rápidas</h3>
+            <div class="botoes-rapidos">
+                <a href="/admin/veiculos/novo" class="btn-admin">+ Novo Veículo</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
