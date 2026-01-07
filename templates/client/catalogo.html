@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locadora 2026</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">🚗 Locadora 2026</div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/login" class="btn-login">Entrar</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Alugue o veículo ideal para sua jornada</h1>
+        <p>Carros e motos com os melhores preços do mercado.</p>
+    </section>
+
+    <main>
+        <div class="lista-veiculos">
+            {% for v in veiculos %}
+            <div class="card">
+                <div class="badge {{ v.tipo }}">{{ v.tipo }}</div>
+                <h3>{{ v.modelo }}</h3>
+                <p class="marca">{{ v.marca }}</p>
+                <div class="preco">
+                    <span class="cifra">R$</span>
+                    <span class="valor">{{ v.valor_diaria }}</span>
+                    <span class="dia">/dia</span>
+                </div>
+                <button class="btn-alugar">Reservar Agora</button>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>

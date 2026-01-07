@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Locadora 2026</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page">
+    <div class="login-container">
+        <h2>Acessar Sistema</h2>
+        <form action="/login" method="POST">
+            <input type="email" name="email" placeholder="Seu E-mail" required>
+            <input type="password" name="senha" placeholder="Sua Senha" required>
+            <button type="submit" class="btn-alugar">Entrar</button>
+        </form>
+        <p>Não tem conta? <a href="/cadastro">Cadastre-se aqui</a></p>
+    </div>
+</body>
+</html>
